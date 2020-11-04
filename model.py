@@ -11,6 +11,17 @@ class sentAnal:
         self.device = device
 
     def __predict(self, sent):
+        """predicts the sentiment score for a single sentence
+        
+        Parameters:
+        sent : str
+            the sentence
+        
+        Return:
+        output: ndarray
+            1D array containg the sentiment score for the sentence
+        """
+
         encoded_review = self.tokenizer.encode_plus(
             sent,
             max_length=self.max_seq_length,
@@ -24,21 +35,26 @@ class sentAnal:
         input_ids = encoded_review['input_ids'].to(self.device)
         attention_mask = encoded_review['attention_mask'].to(self.device)
         output = self.model(input_ids, attention_mask)
-        output = F.softmax(output[0],dim=1)
-
+        output = F.softmax(output[0],dim=1).detach().numpy()[0]
         return output
 
     def get_sentiment(self, sentences):
+        """Calculates the mean sentiment score of all sentences
+        
+        Parameters:
+        sentences : ndarray
+            1D array containing the sentences
+        
+        Return:
+        output: tuple
+            A tuple containg the mean sentiment score of all sentences
+        """
+
         probs = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
         
         for sent in sentences: 
             output = self.__predict(sent=sent)
-            probs += output.detach().numpy()[0]
+            probs += output
 
         probs /= len(sentences)
-        return probs
-
-if __name__ == "__main__":
-    sentiment = sentAnal(max_seq_length=255, device='cpu')
-    print(sentiment.get_sentiment(["what a great day"]))
-    print(sentiment.get_sentiment(["what a bad day"]))
+        return tuple(probs)
