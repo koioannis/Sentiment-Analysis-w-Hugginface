@@ -1,13 +1,13 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
+import math
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-class sentAnal:
-    def __init__(self, max_seq_length, device):
+class SentimentAnalysis:
+    def __init__(self, device):
         self.tokenizer = AutoTokenizer.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
         self.model = AutoModelForSequenceClassification.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
-        self.max_seq_length = max_seq_length
         self.device = device
 
     def __predict(self, sent):
@@ -19,15 +19,14 @@ class sentAnal:
         
         Return:
         output: ndarray
-            1D array containg the sentiment score for the sentence
+            1D array containing the sentiment score for the sentence
         """
 
         encoded_review = self.tokenizer.encode_plus(
             sent,
-            max_length=self.max_seq_length,
             add_special_tokens=True,
             return_token_type_ids=False,
-            pad_to_max_length=True,
+            padding='max_length',
             return_attention_mask=True,
             return_tensors='pt',
         )
@@ -42,19 +41,20 @@ class sentAnal:
         """Calculates the mean sentiment score of all sentences
         
         Parameters:
-        sentences : ndarray
-            1D array containing the sentences
+        sentences : tuple
+            A tuple containing the sentences
         
         Return:
         output: tuple
-            A tuple containg the mean sentiment score of all sentences
+            A tuple containing the mean sentiment score of all sentences
         """
 
-        probs = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
-        
-        for sent in sentences: 
-            output = self.__predict(sent=sent)
-            probs += output
+        outputs = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
 
-        probs /= len(sentences)
-        return tuple(probs)
+        for sent in sentences:
+            output = self.__predict(sent=sent)
+            outputs += output
+
+        outputs /= len(sentences)
+        outputs = np.around(output, decimals=3)
+        return tuple(outputs)
