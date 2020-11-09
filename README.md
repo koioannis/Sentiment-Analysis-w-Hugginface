@@ -1,5 +1,5 @@
 # Sentiment-Analysis-w-Hugginface
-Using hugginface's pre-trained model to predict sentiment metrics on a 5 star based system. For more information visit the model's oficial [page](https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment)
+Using hugginface's pre-trained model to predict sentiment metrics on a 5 star based system. For more information visit the model's official [page](https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment)
 
 ## Installation
 Clone this repo:
