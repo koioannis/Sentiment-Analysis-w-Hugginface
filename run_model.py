@@ -1,40 +1,29 @@
 import sys, getopt
 import spacy
+import os
 import json
 from spacy.lang.en import English
-from pathvalidate import validate_filename
-from model import SentimentAnalysis
 
-def get_files():
-    input_text = ''
-    output_file = ''
-    argv = sys.argv[1:]
+from model import SentimentModel
+from data_handler import DataHandler
 
-    try:
-        opts, _ = getopt.getopt(argv, "i:o:")    
-    except:
-        print('Wrong arguments')
+
+
+def get_filepaths():
+    DATA_PATH = './data'
+    input_filepaths = []
+
+    if (not os.path.isdir(DATA_PATH)):
+        print("Make sure data directory exists")
         exit()
 
-    for opt, arg in opts:
-        try:
-            validate_filename(arg)
-        except:
-            print("Enter valid filenames")
-            exit()
-
-        if (not (arg.endswith('.txt') or arg.endswith('.json'))):
-            print('Wrong file extensions.\nInput file must contain the .txt extension\nOutput file must contain the .json extension')
-            exit()
-
-        if opt in ['-i']:
-            with open(arg) as file:
-                input_text = file.read()
-        
-        if opt in ['-o']:
-            output_file = arg
-
-    return input_text, output_file
+    for _, _, files in os.walk(DATA_PATH):
+        for file in files:
+            if (os.path.basename(file).endswith('.csv')):
+                input_filepaths.append(os.path.abspath(f'{DATA_PATH }/{file}'))
+    
+    return input_filepaths
+    
 
 def save_to_json(output_file, scores):
     json_data = {
@@ -53,23 +42,30 @@ def save_to_json(output_file, scores):
 
 def main():
     nlp = English()
-    input_text, output_file = get_files()
+    filepaths = get_filepaths()
 
-    # split text into sentences
+    sentimentModel = SentimentModel(device='cpu')
+    dataHandler = DataHandler(filepaths=filepaths)
     sentencizer = nlp.create_pipe("sentencizer")
     nlp.add_pipe(sentencizer)
-    doc = nlp(input_text)
-    input_text = tuple(span.text for span in doc.sents)
 
-    print(f'Calculating Sentiment Metric for {len(input_text)} sentences...')
+    files_text = dataHandler.get_text_from_files()
+    files_scores = []
+    for index, file_text in enumerate(files_text):
+        files_scores.append([])
 
-    # calculate sentiment metric
-    sent = SentimentAnalysis(device='cpu')
-    scores = sent.get_sentiment(input_text)
+        print(f'Processing File {index+1}\n')
+        for text in file_text:
+            # split text into sentences
+            doc = nlp(text)
+            text = tuple(span.text for span in doc.sents)
 
-    # save json to output
-    save_to_json(output_file, scores)
-    print(f'Sentiment saved to {output_file}')
+            print(f'Calculating Sentiment Metric for {len(text)} sentences...')
+            files_scores[index].append(sentimentModel.get_sentiment(text))
+        print(f'File {index+1}: DONE')
+    
+    for files_score in files_scores:
+        print(files_score)
 
 
 

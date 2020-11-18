@@ -4,7 +4,10 @@ import numpy as np
 import math
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-class SentimentAnalysis:
+from util import sigmoid
+from util import Singleton 
+
+class SentimentModel(metaclass=Singleton):
     def __init__(self, device):
         self.tokenizer = AutoTokenizer.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
         self.model = AutoModelForSequenceClassification.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
@@ -57,4 +60,11 @@ class SentimentAnalysis:
 
         outputs /= len(sentences)
         outputs = np.around(output, decimals=3)
-        return tuple(outputs)
+        prob = self.__convert_five_star_system(outputs)
+        
+        return prob
+    
+    def __convert_five_star_system(self, outputs):
+        sum = outputs[4] + outputs[3] + outputs[2] - outputs[1] - outputs[0]
+        return sigmoid(sum)   
+    
