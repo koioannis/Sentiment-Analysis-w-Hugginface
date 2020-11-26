@@ -4,8 +4,8 @@ __pycache__/
 *$py.class
 
 # Data and results
-/results
-/data
+results/
+data/
 
 # C extensions
 *.so
