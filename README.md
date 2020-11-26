@@ -8,13 +8,15 @@ git clone git@github.com:koioannis/Sentiment-Analysis-w-Hugginface.git
 cd Sentiment-Analysis-w-Hugginface
 ```
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the requirements.
-```bash
+```sh
 pip install -r requirements.txt
 ```
 ## Usage
-Just drop your csv files into data folder and then run:
+* Drop your csv files into a folder
+* Configure .env
+* Open your favorite terminal and run:
 ```sh
-python run_model.py
+python main.py
 ```
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
