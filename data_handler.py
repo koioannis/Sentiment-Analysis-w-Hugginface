@@ -20,8 +20,8 @@ class DataHandler(metaclass=Singleton):
         df.loc[row, 'sentiment'] = sentiment_score
 
         # Zero values indicate non valid sentiment
-        # if (sentiment_score != 0):
-        #   sentiment_score += self.__calculate_karma(df.loc[row, 'score'], 0.01)
+        if (sentiment_score != 0):
+          sentiment_score += self.__calculate_karma(df.loc[row, 'score'], 0.01)
 
       df.to_csv(f'./results/{os.path.basename(filepath)}_out.csv', sep=self.csv_sep)
 
