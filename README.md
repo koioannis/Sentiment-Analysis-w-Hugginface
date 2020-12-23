@@ -11,6 +11,8 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the req
 ```sh
 pip install -r requirements.txt
 ```
+Install [PyTorch](https://pytorch.org/get-started/locally/) from the official website
+
 ## Usage
 * Drop your csv files into a folder
 * Configure .env
